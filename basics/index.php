@@ -1,156 +1,14 @@
 <?php
   declare(strict_types=1);
-  // strictモード 厳密な型宣言を必要とするモード、strict_types=1 で有効になる。ファイルの先頭に記述が必要。
+  // strictモード　厳密な型宣言を必要とするモード、strict_types=1 で有効になる。ファイルの先頭に記述が必要。
   function add3(int $val): int  // 引数と返り値の型を指定
   {
     return $val + 1;
   }
-  // $result = add1("1");  // int型以外はエラーになる
+  // $result = add1("1");  //　int型以外はエラーになる
   echo $result5 = add3(1);
   var_dump($result5);
 ?>
-
-
-<!-- <?php
-$name = 'bob';
-echo 'hello,' . $name . '<br>';
-echo 'bye, ' . $name;
-?> -->
-
-<!-- <?php
-$name = 'Bob';
-echo 'hello, ' . $name . '<br>';
-echo "hello, $name" . '<br>';
-echo "hel{$name}lo, $name \n\n $name";
-?> -->
-
-<!-- <?php
-// 自己代入
-  $i = 1;
-  $j = 2;
-  echo $i = $i + $j;
-  echo $i += $j;
-  echo $i++;
-?> -->
-
-<!-- <?php
-  $i = 3;
-  $i++;
-  echo $i;
-?>
-
-<?php
-  $i = 4;
-  echo $i++;
-?> -->
-
-<?php
-// データ型
-$i = 1;
-var_dump($i);
-
-$str ='hello';
-var_dump($str);
-
-$b = true;
-var_dump($b);
-
-echo var_dump($i + $b);
-
-var_dump($i === 1);
-?>
-
-<!-- <?php
-// 条件分岐
-$score = 70;
-
-if($score < 50) {
-  echo '不合格';
-} elseif ( 50 <= $score && $score < 70) {
-  echo '合格';
-} else {
-  echo '秀';
-}
-
-?> -->
-
-<!-- 
-<?php
-
-if(1 === '1') {
-  echo 'true';
-} else {
-  echo 'false';
-}
-
-echo '<br>';
-
-if(1 == '1') {
-  echo 'true';
-} else {
-  echo 'false';
-}
-?> -->
-
-
-<!-- <?php
-
-$a = 0;
-$b;
-
-if(isset($a)) {
-  echo 'true';
-} else {
-  echo 'false';
-}
-
-echo '<br>';
-
-if(isset($b)) {
-  echo 'true';
-} else {
-  echo 'false';
-}
-
-echo '<br>';
-
-$a = 1;
-
-if (empty($a)) {
-  echo 'empty';
-} else {
-  echo 'not empty';
-}
-
-echo '<br>';
-
-if (isset($a)) {
-  echo 'isset';
-} else {
-  echo 'not isset';
-}
-
-echo '<br>';
-
-var_dump(isset($a));
-?> -->
-
-<!-- <?php
-  $price = 100;
-  $amount = 3;
-  $sum = $price * $amount;
-
-  if($price * $amount > 0) {
-    echo "total amount is {$sum}";
-  } else {
-    echo 'please buy something';
-  }
-?> -->
-
-
-
-
-
 
 <!-- <?php
 // 配列①
@@ -486,7 +344,7 @@ function fn1() {
   return $a + $b + $c;
 }
 echo fn1();
-// echo $c;                 // スコープ外の為参照不可
+// echo $c;         　　　　　// スコープ外の為参照不可
 // var_dump($_SERVER);      // スーパーグローバルスコープ。定義済み変数。スクリプト全体を通してすべてのスコープで使用可能な変数。$ _SERVER はスクリプト、HTTPヘッダー、サーバーパスに関する情報を保持する。
 ?> -->
 
@@ -661,7 +519,7 @@ echo dirname(__FILE__, 3);  // 3階層上位のディレクトリまでのフル
 ?> -->
 
 
-<?php
+<!-- <?php
   // 抽象クラス    継承後にインスタンス化することを前提としたクラス。抽象クラス自身はインスタンス化できない。
   abstract class Animal {
     protected $name;
@@ -673,14 +531,14 @@ echo dirname(__FILE__, 3);  // 3階層上位のディレクトリまでのフル
       echo '<br> ------------------------<br>';
       echo self::$live;       // 自身のプロパティを呼ぶ
       echo '<br> ------------------------<br>';
-      echo static::$live;     // 継承先のプロパティを呼ぶ。継承先でオーバーライドされていなければ自身のクラスのプロパティを呼ぶ
+      echo static::$live;     //　継承先のプロパティを呼ぶ。継承先でオーバーライドされていなければ自身のクラスのプロパティを呼ぶ
       echo '<br> ------------------------<br>';
     }
     function get_name() {
       echo $this->name, '<br>';
       return $this;
     }
-    abstract function express_abstract();   // 抽象メソッド  メソッド名のみ宣言する。継承後のクラスでオーバーライドして扱う。オーバーライドしないとエラーになる。
+    abstract function express_abstract();   // 抽象メソッド　　メソッド名のみ宣言する。継承後のクラスでオーバーライドして扱う。オーバーライドしないとエラーになる。
     function run() {
       echo $this->name . ' is running <br>';
     }
@@ -688,7 +546,7 @@ echo dirname(__FILE__, 3);  // 3階層上位のディレクトリまでのフル
   class Dog extends Animal {
     public static $live = "Alice's house";
 
-    function __construct($name, $age)
+    function __construct(string $name, int $age)
     {
       parent::__construct($name);
       $this->age = $age;
@@ -708,4 +566,4 @@ echo dirname(__FILE__, 3);  // 3階層上位のディレクトリまでのフル
   $pochi->get_name()->express_abstract();
   $pochi->get_parent_name();
   $pochi->get_age();
-?>
+?> -->
