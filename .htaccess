@@ -1,0 +1,6 @@
+DirectoryIndex index.php index.html
+
+# Redirect 301 /apache1/todo_list /apache1
+# Redirect 301 /apache1/todo_list https://google.com
+# Redirect /apache1/abcd https://google.com
+Redirect 302 /apache1/abcd /apache1
