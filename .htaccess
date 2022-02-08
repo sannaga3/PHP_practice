@@ -1,6 +1,31 @@
-DirectoryIndex index.php index.html
+# DirectoryIndex index.php index.html
 
 # Redirect 301 /apache1/todo_list /apache1
 # Redirect 301 /apache1/todo_list https://google.com
 # Redirect /apache1/abcd https://google.com
-Redirect 302 /apache1/abcd /apache1
+# Redirect 302 /apache1/abcd /apache1
+
+RewriteEngine On
+# pattern の方のみカレントディレクトリからの相対パスで記述
+# RewriteRule form/index.php /apache1/index.html [R]
+# RewriteRule form/index.php  https://google.com
+# RewriteRule form/index.php - [F]
+
+RewriteBase /apache1/
+# RewriteRule form/index.php index.html [R]
+# RewriteRule form/(.+\.html) index.html
+
+# RewriteCond %{HTTP_HOST} ^localhost:8888
+# RewriteRule form/(.+\.html) index2.html
+
+# RewriteRule sample/index(\d)\.html$ index$1.html
+
+# RewriteCond %{REQUEST_FILENAME} !-f
+# RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteRule . index.html
+
+# RewriteCond %{QUERY_STRING} p=(.+)
+# RewriteRule sample/ %1
+
+RewriteRule /(.+)\.html$ $1.php
+
