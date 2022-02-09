@@ -216,7 +216,7 @@ RewriteRule /(.+)\.html$ $1.php
 
 クエリを利用する
 ---------------------------------------------
-URLに http://localhost:8888/apache1/sample/?p=index1.html を打ち込み、sampleディレクトリへのクエリを取得し、ルートディレクトリのファイル名に置換
+URLに http://localhost:8888/apache1/sample/?p=index1.html を打ち込み、sampleディレクトリへのクエリを取得し、ルートディレクトリの同名ファイルに置換
 RewriteCond %{QUERY_STRING} p=(.+)
 RewriteRule sample/ %1               %1 で1つ目のマッチ(p=(.+))を参照する
 ---------------------------------------------
@@ -237,4 +237,103 @@ https://httpd.apache.org/docs/2.4/ja/mod/mod_version.html
   省略
 </IfVersion>
 ---------------------------------------------
+```
+
+##### webp画像
+
+圧縮率の高い画像フォーマット
+
+https://www.sungrove.co.jp/webp/
+
+```
+---------------------------------------------
+png形式に対してアクセスがあり、同名のwebp形式がある場合はそれに置換する
+AddType image/webp .webp              * .webpの拡張子の場合はimage/webpのMIMEタイプとして扱う  MAMP/conf/apache/mime.types内にwebpの記述がある場合は不要。
+RewriteCond %{HTTP_ACCEPT} image/webp
+RewriteCond /Users/nagasan/php_practice/practice/images/$1.webp -f
+RewriteRule images/(.*)\.png images/$1.webp
+---------------------------------------------
+```
+
+##### Content-Type
+
+HTTPのリクエストヘッダー、レスポンスヘッダーで利用するデータの形式を指定するもの。
+
+```
+ブラウザはレスポンスヘッダーのContent-Typeを元に出力するデータの形式を決定する。
+Content-Typeのデータ形式はMIMEタイプで指定されている。タイプ名/サブタイプ名で記述する。
+
+https://www.wakuwakubank.com/posts/799-it-content-type-content-disposition/
+https://www.tohoho-web.com/wwwxx015.htm
+```
+
+##### サブドメイン
+
+メインサイトとは別のコンテンツを作るときに、本体ドメインを元に任意で設定するドメイン名のこと。
+
+https://shop-pro.jp/yomyom-colorme/72260
+
+/private/etc/hosts    IPとドメインを紐付けるファイル。DNSより優先される。localhostの設定もここに記述されている為利用できる。
+
+https://hikari-blog.com/hosts/
+
+```
+sudo vi /private/etc/hosts
+--------------- /private/etc/hosts -----------------
+127.0.0.1	localhost       ループバックアドレス
+
+以下を追記
+127.0.0.1 dev.local
+127.0.0.1 www.dev.local
+127.0.0.1 vhost.dev.local
+
+上記により、以下3つのサブドメインでもループバックアドレスにアクセス可能になる
+http://dev.local:8888/apache1/images/B.png
+http://www.dev.local:8888/apache1/images/B.png
+http:// vhost.dev.local:8888/apache1/images/B.png
+
+wwwから始まるサブドメインへのアクセスをwwwのないサブドメインに置換する
+RewriteCond %{HTTP_HOST} ^www\.dev\.local [NC]     [NC]大文字小文字の区別をせずにパターンマッチを行う
+RewriteRule .? http://dev.local:8888%{REQUEST_URI} [R=301]
+----------------------------------------------------
+```
+
+##### キャッシュ
+
+キャッシュは画像・CSS・JavaScript などのあまり変更を加えないファイルに対し、どれくらいの期間キャッシュを有効にするか設定する。  
+HTTPヘッダーの中で、以下の4つがキャッシュ関連の情報。  
+https://junzou-marketing.com/browser-cache-control
+
+```
+Cache-Control   キャッシュの有効期限を秒数で指定  Cache-Cotrol: public, max-age=86400
+Expires         キャッシュの有効期限を日時で指定  Expires: Fri, 29 Jun 2018 11:17:13 GMT
+Last-Modified   リソースの最終更新日            Last-Modified: Wed, 27 Dec 2017 08:39:12 GMT
+ETag            各リソースに付与される識別子(INodeや更新日時、ファイルサイズなどから生成される固有の値)    ETag: "175614e56b6c00"
+* Last-Modified と ETag の両方がある場合Etagが優先される
+
+[FileETag]を使ったキャッシュの設定
+# コンテキスト:	サーバ設定ファイル, バーチャルホスト, ディレクトリ, .htaccess
+
+https://qiita.com/OmeletteCurry19/items/a84d6a7c91df50e7dcd6
+
+------------------ .htaccess -----------------------
+# INode、更新日時、ファイルサイズを使用
+FileETag INode MTime Size
+
+# 更新日時、ファイルサイズのみ使用
+FileETag MTime Size
+----------------------------------------------------
+```
+
+##### keepAlive
+
+クライアントとの接続を保持する仕組み。HTTP2では不要。HTTPはステートレス・プロトコルであり1回のリクエストごとに接続が切断されるが、KeepAliveにより通信を接続後にある条件を満たすまで接続を保持できるようになる。  
+https://atmarkit.itmedia.co.jp/ait/articles/0207/23/news002_2.html
+
+```
+----------------------------------------------------
+KeepAlive On
+MaxKeepAliveRequests 100   1回の通信で最大何個のリクエストを送信できるか(静的ファイル数+@を目安とする)
+KeepAliveTimeout 1   次のリクエストの待機時間
+----------------------------------------------------
 ```

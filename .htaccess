@@ -11,7 +11,7 @@ RewriteEngine On
 # RewriteRule form/index.php  https://google.com
 # RewriteRule form/index.php - [F]
 
-RewriteBase /apache1/
+# RewriteBase /apache1/
 # RewriteRule form/index.php index.html [R]
 # RewriteRule form/(.+\.html) index.html
 
@@ -27,5 +27,17 @@ RewriteBase /apache1/
 # RewriteCond %{QUERY_STRING} p=(.+)
 # RewriteRule sample/ %1
 
-RewriteRule /(.+)\.html$ $1.php
+# RewriteRule /(.+)\.html$ $1.php
 
+# AddType image/webp .webp
+# RewriteCond %{HTTP_ACCEPT} image/webp
+# RewriteCond /Users/nagasan/php_practice/practice/images/$1.webp -f
+# RewriteRule images/(.*)\.png images/$1.webp
+
+# RewriteCond %{HTTP_HOST} ^www\.dev\.local
+# RewriteRule .? http://dev.local:8888%{REQUEST_URI} [R=301]
+
+# FileETag All
+# FileETag INode MTime Size
+# FileETag None
+# FileETag MTime Size
