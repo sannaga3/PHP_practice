@@ -13,6 +13,14 @@ ctrl + enter  複数行実行
 * DBの作成や削除後は更新しないと変更が反映されない
 ```
 
+##### 基本コマンド
+
+```
+select version();       バージョン情報確認
+select @@datadir;       データの保存場所 /Applications/MAMP/db/mysql57/
+https://oreno-it3.info/archives/435
+```
+
 ##### データ型
 
 ```
@@ -351,4 +359,361 @@ order by sh.name;
 店舗B  |青森   |椅子   |  0|
 店舗B  |青森   |ベッド | 100|
 店舗C  |岩手   |ベッド |  60|
+```
+
+##### SQL文の種類
+
+https://morizyun.github.io/database/sql-ddl-dml-dcl.html
+
+```
+DDL(Data Definition Language)   DB操作のコマンド。CREATE、DROP、ALTER
+DML(Data Manipulation Language) レコード操作のコマンド。SELECT、INSERT、UPDATE、DELETE
+DCL(Data Control Language)      トランザクションの制御のコマンド。BEGIN、COMMIT、ROLLBACK
+```
+
+##### トランザクション
+
+開始から終了まで連続する複数の操作をひとまとまりにしたもの。(DML文)
+
+
+```
+・ACID特性4つ
+Atomicity(原子性)  SQLの命令がすべて実行される(commit)か一つも実行されない(rollback)か、どちらかになる性質のこと。
+Consistency(一貫性) トランザクション前後のデータの整合性が保たれ、矛盾が起きない性質。
+Isolation(独立性)   トランザクション内部の処理は他のセッションから独立して処理され、別の処理に影響を及ぼさない性質。
+Durability(永続性)  トランザクション処理が完了した場合、記録された結果がシステム障害などで失われることがない性質。データ操作の時系列の記録（ログ）を保存しておき、処理中に中断しても復元が可能。
+
+https://e-words.jp/w/ACID%E7%89%B9%E6%80%A7.html
+
+
+------------------------------------------
+start transaction         トランザクション開始
+
+insert into txn_stocks (product_id, shop_id, amount, updated_by) values (1, 3, 20, 'sannaga');   レコード作成
+
+select * from txn_stocks ts where (product_id = 1 and shop_id = 1 )   作成したレコードの確認(この時点で別のセッションを開き同じSQL文を実行しても、トランザクション内の為レコードの追加が反映されていない)
+or  (product_id = 1 and shop_id = 3);
+
+update txn_stocks set amount = 1000
+where product_id = 1 and shop_id = 1;
+
+commit;                   commitかrollbackで処理が終了する(別のセッションからでも確認できるようになる)
+rollback;
+
+* トランザクションを使わずにSQL文を実行した場合は、自動でトランザクションの機能が働いている。
+------------------------------------------
+```
+
+##### ロックとデッドロック
+
+```
+ロック   データを更新する前に行またはテーブルを他のセッションから更新できないようにする。
+        データ更新処理(ロック → update → ロック解除)
+デッドロック  複数のセッションがロック解除待ちで処理が完了しない状態に陥ること。
+            セッションAがトランザクション処理でレコードをロックした状態で、他のセッションが同じレコードをトランザクション処理でロックしてしまうと、どちらのセッションからも解除ができなくなり処理が終わらない。
+
+---------------------------------------------------------------
+・デッドロックをしてみる
+
+両方のセッションでトランザクションを開始し、①のクエリを実行する。
+その後に②のクエリを実行すると、どちらのレコードにもロックが掛かっている為、それ以上処理が進まなくなる。
+
+# セッション１
+
+start transaction;
+
+①update txn_stocks set amount = 500 where product_id = 1 and shop_id  = 1;
+②update txn_stocks set amount = 500 where product_id = 1 and shop_id  = 2;
+
+commit;
+
+# セッション2
+
+start transaction;
+
+①update txn_stocks set amount = 700 where product_id = 1 and shop_id  = 2;
+②update txn_stocks set amount = 700 where product_id = 1 and shop_id  = 1;
+
+commit;
+---------------------------------------------------------------
+
+・ロック解除待ちの確認
+select * from information_schema.innodb_lock_waits;
+
+リクエスト側のID   リクエスト側のロックID ブロックしているID ブロックしている側のロックID
+---------------------------------------------------------------------
+requesting_trx_id|requested_lock_id|blocking_trx_id|blocking_lock_id|
+-----------------+-----------------+---------------+----------------+
+42070            |42070:156:3:3    |42069          |42069:156:3:3   |
+---------------------------------------------------------------------
+
+* INNODB_LOCK_WAITS テーブルはトランザクションのロックと、リクエストをブロックしているロック全ての情報を持つ。
+https://dev.mysql.com/doc/refman/5.6/ja/information-schema-innodb-lock-waits-table.html
+
+
+・deadlock確認
+show engine innodb status;    エンジンの状態に関する広範囲にわたる情報を表示する。
+
+---------------------------------------------------------------
+LATEST DETECTED DEADLOCKの項目を確認すると、デッドロックを起こしたセッション名と、デッドロック時にロックを掛けていたSQL文が書かれている
+
+*** (1) TRANSACTION:
+TRANSACTION 42080, ACTIVE 11 sec starting index read
+mysql tables in use 1, locked 1
+/* ApplicationName=DBeaver 21.3.4 - SQLEditor <Product.sql> */ update txn_stocks set amount = 500
+where product_id = 1 and shop_id  = 2
+
+*** (2) TRANSACTION:
+TRANSACTION 42081, ACTIVE 8 sec starting index read
+mysql tables in use 1, locked 1
+/* ApplicationName=DBeaver 21.3.4 - SQLEditor <Script-1.sql> */ update txn_stocks set amount = 700
+where product_id = 1 and shop_id  = 1
+---------------------------------------------------------------
+
+以下がコマンドの結果全文
+
+------------------------
+LATEST DETECTED DEADLOCK
+------------------------
+2022-02-12 10:36:51 0x70000ffe4000
+*** (1) TRANSACTION:
+TRANSACTION 42080, ACTIVE 11 sec starting index read
+mysql tables in use 1, locked 1
+LOCK WAIT 3 lock struct(s), heap size 1136, 2 row lock(s)
+MySQL thread id 27, OS thread handle 123145569796096, query id 3364 localhost 127.0.0.1 root updating
+/* ApplicationName=DBeaver 21.3.4 - SQLEditor <Product.sql> */ update txn_stocks set amount = 500
+where product_id = 1 and shop_id  = 2
+*** (1) WAITING FOR THIS LOCK TO BE GRANTED:
+RECORD LOCKS space id 156 page no 3 n bits 80 index PRIMARY of table `shop_system`.`txn_stocks` trx id 42080 lock_mode X locks rec but not gap waiting
+Record lock, heap no 3 PHYSICAL RECORD: n_fields 8; compact format; info bits 0
+ 0: len 4; hex 00000001; asc     ;;
+ 1: len 4; hex 00000002; asc     ;;
+ 2: len 6; hex 00000000a455; asc      U;;
+ 3: len 7; hex 3b000001300f17; asc ;   0  ;;
+ 4: len 4; hex 000002bc; asc     ;;
+ 5: len 4; hex 80000000; asc     ;;
+ 6: len 4; hex 62070c19; asc b   ;;
+ 7: len 7; hex 73616e6e616761; asc sannaga;;
+
+*** (2) TRANSACTION:
+TRANSACTION 42081, ACTIVE 8 sec starting index read
+mysql tables in use 1, locked 1
+3 lock struct(s), heap size 1136, 2 row lock(s)
+MySQL thread id 29, OS thread handle 123145570631680, query id 3366 localhost 127.0.0.1 root updating
+/* ApplicationName=DBeaver 21.3.4 - SQLEditor <Script-1.sql> */ update txn_stocks set amount = 700
+where product_id = 1 and shop_id  = 1
+*** (2) HOLDS THE LOCK(S):
+RECORD LOCKS space id 156 page no 3 n bits 80 index PRIMARY of table `shop_system`.`txn_stocks` trx id 42081 lock_mode X locks rec but not gap
+Record lock, heap no 3 PHYSICAL RECORD: n_fields 8; compact format; info bits 0
+ 0: len 4; hex 00000001; asc     ;;
+ 1: len 4; hex 00000002; asc     ;;
+ 2: len 6; hex 00000000a455; asc      U;;
+ 3: len 7; hex 3b000001300f17; asc ;   0  ;;
+ 4: len 4; hex 000002bc; asc     ;;
+ 5: len 4; hex 80000000; asc     ;;
+ 6: len 4; hex 62070c19; asc b   ;;
+ 7: len 7; hex 73616e6e616761; asc sannaga;;
+
+*** (2) WAITING FOR THIS LOCK TO BE GRANTED:
+RECORD LOCKS space id 156 page no 3 n bits 80 index PRIMARY of table `shop_system`.`txn_stocks` trx id 42081 lock_mode X locks rec but not gap waiting
+Record lock, heap no 4 PHYSICAL RECORD: n_fields 8; compact format; info bits 0
+ 0: len 4; hex 00000001; asc     ;;
+ 1: len 4; hex 00000001; asc     ;;
+ 2: len 6; hex 00000000a44e; asc      N;;
+ 3: len 7; hex 37000001ad035e; asc 7     ^;;
+ 4: len 4; hex 000001f4; asc     ;;
+ 5: len 4; hex 80000001; asc     ;;
+ 6: len 4; hex 62070ae8; asc b   ;;
+ 7: len 7; hex 73616e6e616761; asc sannaga;;
+```
+
+##### truncate文
+
+```
+------------------------------------
+truncate table txn_stocks;
+------------------------------------
+
+rollbackで戻せない
+deleteより速い(delete文は1レコードずつ削除するが、truncateはテーブル毎削除してから作り直す)
+whereは使えない
+auto_incrementは初期値に戻る
+
+https://www.dbonline.jp/mysql/insert/index12.html
+https://uxmilk.jp/52122
+```
+
+##### システム変数
+
+MySQL サーバーを操作するための変数。
+
+```
+・2種類のシステム変数
+グローバル変数   サーバーの操作全体に影響する.サーバーが起動時に各グローバル変数はデフォルト値に初期化。
+セッション変数   個々のクライアント接続の操作に影響する
+
+@@session.変数名   現在のセッションの値を取得
+@@global.変数名    サーバー上の値を取得
+@@変数名           sessionとglobal両方に設定できる変数の場合、session => global の順番で取得する
+
+
+・システム変数の変更
+SET ステートメントを使用して変更する
+
+https://docs.oracle.com/cd/E17952_01/mysql-8.0-ja/using-system-variables.html
+
+set session
+set global
+
+------------------------------------
+show variables;                         システム変数一覧表示
+show session variables like '%auto%';   セッションのシステム変数を名前で絞り込み検索
+select @@session.autocommit;  =>  1     autocommitのセッションのシステム変数値を表示
+set session autocommit = 0;             autocommitの値を変更(セッションを再起動すると元に戻る)。無効にすると常にstart transactionの状態であり、commitする毎にレコードに反映される。
+------------------------------------
+
+* autocommit  SQL文実行時に自動でトランザクションを開始し、終了時にコミット、エラー時にはロールバックを行う機能。
+https://dev.mysql.com/doc/refman/8.0/ja/innodb-autocommit-commit-rollback.html
+```
+
+##### ユーザー定義変数
+
+変数を作成し、そこにカラムの値や集計値を保存して扱う機能。(セッション変数)  
+SET @[変数名] = 値;  
+https://notepad-blog.com/content/166/  
+https://tocsato.hatenablog.com/entry/2016/08/31/065408
+
+```
+------------------------------------
+set @s_id = 2;
+select * from mst_shops ms where ms.id = @s_id;                shop_id = 2 のレコードを取得
+select @s_name := name from mst_shops ms where ms.id = @s_id;  @s_name に shop_id = 2 の nameの値を格納
+select @s_name;   格納した値の確認
+------------------------------------
+```
+
+##### TIMESTAMPとDATETIME
+
+```
+・TIMESTAMP
+4bytes
+'1970-01-01 00:00:01' UTC to '2038-01-09 03:14:07'   2038年までしか使えない
+タイムゾーンを考慮する
+
+・DATETIME
+5bytes(バージョンが古いと8bytes)
+'1000-01-01 00:00:00' to '9999-12-31 23:59:59'       期限の制限がない
+タイムゾーンを考慮しない
+
+-------------------------------------------------
+create table dates(
+	dt datetime,
+	ts timestamp
+);
+
+select @@session.time_zone;    タイムゾーンの取得。デフォルト値は SYSTEM(ホストマシンのタイムゾーンと同じ)
+                               https://dev.mysql.com/doc/refman/5.6/ja/time-zone-support.html
+
+insert into dates values(now(), now());          各カラムの値に現在時刻を使用しレコードを作成
+select * from dates;
+
+dt                 |ts                 |
+-------------------+-------------------+
+2022-02-12 06:19:36|2022-02-12 06:19:36|
+
+set session time_zone = "+1:00";                 time_zoneを変更すると、timestampに格納した値の表現が変わる
+insert into dates values(now(), now());          NOW(), SYSDATE() は timestamp で値が返る
+select * from dates;
+
+dt                 |ts                 |
+-------------------+-------------------+
+2022-02-12 14:19:36|2022-02-12 06:19:36|
+2022-02-12 06:22:06|2022-02-12 06:22:06|
+-------------------------------------------------
+```
+
+##### ユーザの作成
+
+create user {ユーザー名}@{接続元のホスト名} identified by 'password';  * ユーザ作成
+grant {権限名} on {対象のDBオブジェクト} to {ユーザー};                 * 権限の付与
+
+```
+-------------------------------------------------
+select user();                                            現在のユーザ確認 => root
+create user 'test_user'@'localhost' identified by 'pwd';  localhostで接続するユーザ(test_user)を作成
+select * from mysql.user;                                 mysqlで扱えるユーザーを表示
+
+grant select on shop_system.* to 'test_user'@'localhost'; shop_systemのDBでselectコマンドを使える権限の付与
+
+grant insert, update on shop_system.* to 'test_user'@'localhost';  shop_systemのDBでupdateとinsertコマンドを使える権限の付与
+grant create, alter on shop_system.* to 'test_user'@'localhost';
+-------------------------------------------------
+
+新たなセッションを作成しtest_userでログイン。以下のコマンドを入力していく。
+
+-------------------------------------------------
+select user();                                           test_userが表示される
+
+use shop_system;
+
+select * from mst_shops;                                 ショップ一覧を確認
+
+update mst_shops set delete_flag = 1, updated_by = 'set_user';  updateコマンドで編集が可能になっている
+-------------------------------------------------
+
+権限を確認する
+
+-------------------------------------------------
+show grants for 'test_user'@'localhost';                指定ユーザの権限を確認
+
+-----------------------------------------------------------------------------------------
+Grants for test_user@localhost                                                           |
+-----------------------------------------------------------------------------------------+
+GRANT USAGE ON *.* TO 'test_user'@'localhost'       * この行はデフォルト値(実際の権限はない)   |
+GRANT SELECT, INSERT, UPDATE, CREATE, ALTER ON `shop_system`.* TO 'test_user'@'localhost'|
+-----------------------------------------------------------------------------------------
+
+-------------------------------------------------
+
+権限を削除する
+
+-------------------------------------------------
+grant all on shop_system.* to 'test_user'@'localhost';     shop_systemの全てのテーブルとレコードへのアクセスを許可
+revoke all on shop_system.* from 'test_user'@'localhost';  上記の権限を削除
+
+* allはrootと同じフル権限を与えるため、一般ユーザに付与すべきではない
+https://www.digitalocean.com/community/tutorials/how-to-create-a-new-user-and-grant-permissions-in-mysql-ja
+-------------------------------------------------
+```
+
+##### 文字コード
+
+```
+-------------------------------------------------
+utf-8      本来なら4byteだが、mysqlでは3byteのため、表示できない文字がある。非推奨とされており、将来的に削除され、utf8mb3という表記が必要になるかも。
+utf-8mb4   4byte。全ての文字列と絵文字に対応する。
+
+＊utf8 は現在 utf8mb3 のエイリアスだが、今後 utf8mb4 への参照になる可能性が高い。utf8mb4を使うべき。
+https://penpen-dev.com/blog/mysql-utf8-utf8mb4/
+
+
+create database sample character set 'utf8mb4';                         DBを作成する時の文字コード指定
+create table sample( table名 変数名(データ型) character set 'utf8mb4');    テーブルを作成する時の文字コード指定
+-------------------------------------------------
+・絵文字をレコードに保存してみる
+
+create table character_code(
+	ut3 varchar(20) character set 'utf8',
+	ut4 varchar(20) character set 'utf8mb4'
+);
+
+insert into character_code(ut3) values ('😆');   * 保存できない
+insert into character_code(ut4) values ('😆');   * 保存可能
+
+select * from character_code;
+
+ut3|ut4|
+---+---+
+   |😆 |
+-------------------------------------------------
 ```
