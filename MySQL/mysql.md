@@ -717,3 +717,106 @@ ut3|ut4|
    |😆 |
 -------------------------------------------------
 ```
+
+##### 照合順序 COLLATION
+
+mysqlは文字列を比較する際に、文字コードと照合順序を元に一致するか確認する。DB、テーブル、カラム単位で設定可能。  
+https://qiita.com/kazu56/items/6af85ffcf8d3954455ad
+
+```
+・collationの一例
+utf8mb4_general_ci  デフォルト設定。英字の大文字小文字が区別されない。半角と全角は区別する。
+utf8mb4_unicode_ci  大文字小文字、全角半角、ひらがな・カタカナ、濁音・半濁音が区別されない。
+utf8mb4_bin         すべて区別
+
+-------------------------------------------------
+show collation;                               200以上の種類が表示される
+show collation where charset like '%utf8mb4%';   utf8mb4に限定しても26種類。
+-------------------------------------------------
+
+テーブルを作成して確認
+
+-------------------------------------------------
+create table collate_test (               テーブル作成
+  col varchar(20)
+)
+character set 'utf8mb4'
+collate 'utf8mb4_general_ci';
+
+insert into test_db.collate_test values   レコード作成
+('パパ'),
+('ババ'),
+('ハハ'),
+('ﾊﾊ'),
+('はは'),
+('HAHA'),
+('haha'),
+('ｈａｈａ'),
+('ＨＡＨＡ');
+
+いくつかのcollationでレコードを取得してみる
+select col "GENE" from test_db.collate_test where col = 'はは';                            => はは
+select col "UNI" from test_db.collate_test where col COLLATE utf8mb4_unicode_ci = 'はは';  => パパ, ババ, ハハ, ﾊﾊ, はは
+select col "BIN" from test_db.collate_test where col COLLATE utf8mb4_bin = 'はは';         => はは
+-------------------------------------------------
+```
+
+##### index
+
+特定のカラム値のある行を高速に見つけるために使用する。indexがあると先頭から全てのデータを調べていく必要がなくなる。  
+https://dev.mysql.com/doc/refman/5.6/ja/mysql-indexes.html
+
+```
+・インデックスが使用される時
+where句、複数のインデックスからの選択、テーブルの結合、ソートまたはグループ化が行われている場合(order by)、likeでの後方部分一致など
+
+・B ツリー
+テーブルのデータを素早く探す為のアルゴリズムで、二分探索を元にしている。インデックスとして一般的に使用されるツリーデータ構造。ほとんどの MySQL インデックス (PRIMARY KEY、UNIQUE、INDEX、FULLTEXT) は B ツリーに格納される。
+https://dev.mysql.com/doc/refman/5.6/ja/glossary.html#glos_b_tree
+https://cres-tech.hatenablog.com/entry/2020/12/06/184241
+
+・indexの付与
+ALTER TABLE [テーブル名] ADD INDEX [インデックス名]([カラム名]);
+
+-------------------------------------------------
+alter table mst_shops add index idx_pref(pref_id);     mst_shopsテーブルのpref_idカラムにidx_prefという名前でインデックスを付与
+-------------------------------------------------
+
+https://uqichi.hatenablog.com/entry/howto-use-mysql5.7-index/
+```
+
+##### optimizerとexplain
+
+```
+・optimizer(実行計画を選択する過程)
+レコードの取得方法を決定する過程のこと
+
+・explain(実行プラン)
+クエリがどのように実行されるかを確認できる。
+https://qiita.com/tsurumiii/items/0b70f1a1ee0499be2002
+```
+
+・インデックスを付与してexplainで検索方法を確認する
+
+```
+alter table mst_shops add index idx_pref(pref_id);
+
+insert into mst_shops(name, pref_id, updated_by) values ('店舗D', 1, 'sannaga'), ('店舗E', 1, 'sannaga'), ('店舗F', 1, 'sannaga'), ('店舗G', 1, 'sannaga'), ('店舗H', 2, 'sannaga'),
+ ('店舗I', 3, 'sannaga'), ('店舗J', 1, 'sannaga'), ('店舗K', 1, 'sannaga'), ('店舗K', 1, 'sannaga'), ('店舗M', 1, 'sannaga'), ('店舗N', 2, 'sannaga'), ('店舗O', 3, 'sannaga');
+
+explain select * from mst_shops;                     typeの値がALL => indexを使用しない検索
+explain select * from mst_shops where pref_id = 3;   typeの値がref => ユニークでないインデックスによる等価検索（WHERE key = valueでの検索）
+explain select * from mst_shops where id = 3;        typeの値がconst => primary keyもしくはユニークなインデックスを使用した検索
+explain select * from mst_shops where id >= 3;       typeの値がrange => インデックスを用いた範囲検索
+
+https://nishinatoshiharu.com/explain_overview/
+https://www.inagora.com/tech-blog-20210510/
+```
+
+##### ログを残す
+
+```
+set global general_log_file = on;
+set global general_log_file = '/Applications/MAMP/logs/mysql_query.log;
+tail -f /Applications/MAMP/logs/mysql_query.log(別ターミナルで実行)
+```
