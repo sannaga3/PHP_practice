@@ -166,40 +166,49 @@
   // /* Exceptionクラス phpで処理するエラーを補足する場合は、基本的にこのクラス、もしくはこのクラスを継承したサブクラスを用いる。 */
   // /* Errorクラス  php7から実装。 ParseErrorやTypeErrorなどが含まれる。文法ミスによるエラーのため、キャッチせずにコード修正すれば良い */
 
-  echo '------------------------------------------------------------------------------------- <br>';
+
+    /* 例外処理ここまで */
+
+
+  // echo '------------------------------------------------------------------------------------- <br>';
 
   $conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
   $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);       /* PDOの例外エラーを詳細にしてくれるオプション。select文などのSQLのエラーが詳細になる https://www.toumasu-program.net/entry/2019/12/20/102903/ */
 
-  try {
+  //   // $get_store_c_id = $conn->query('select id from mst_shops where name = "店舗A"');
+  //   // $store_c_id = $get_store_c_id->fetchAll(PDO::FETCH_ASSOC);
+  //   // print_r($store_c_id);
 
-    // $get_store_c_id = $conn->query('select id from mst_shops where name = "店舗A"');
-    // $store_c_id = $get_store_c_id->fetchAll(PDO::FETCH_ASSOC);
-    // print_r($store_c_id);
-
-    $update_rows = $conn->exec('update txn_stocks ts set ts.amount = ts.amount + 10 where shop_id = 1');
-    echo $update_rows . '<br>';
-    echo '処理終了';
-
-  } catch(PDOException $e) {
-
-    echo 'PDOException <br>';
-    echo '例外処理です。 error message : ';
-    echo $e->getMessage() . '<br>';
-  }
+  //   $update_rows = $conn->exec('update txn_stocks ts set ts.amount = ts.amount + 10 where shop_id = 1');
+  //   echo $update_rows . '<br>';
+  //   echo '処理終了';
 
   echo '------------------------------------------------------------------------------------- <br>';
 
-  // try {
+  //   $add_shop = $conn->exec("insert into mst_shops(name, pref_id, updated_by) values ('店舗D', 4, 'sannaga');");
+  //   echo $add_shop . '<br>';
+
+  echo '------------------------------------------------------------------------------------- <br>';
+
+    /* ショップと製品のidを個々に検索し、変数化して探す方法 */
+    $product_id = $conn->query("select id from mst_products mp where mp.name = '椅子'")->fetch()['id'];
+    $shop_id = $conn->query("select id from mst_shops sp where sp.name = '店舗A'")->fetch()['id'];
+    $chair_amount = $conn->query("select amount from txn_stocks where product_id = {$product_id} and shop_id = {$shop_id}")->fetch()['amount'];
+    echo 'chair_amount : ' . $chair_amount . '<br>';
 
 
-  // } catch(Exception $e) {
+    /* テーブルを結合して探す方法 */
+    $amount = $conn->query("
+      select ts.amount from txn_stocks ts
+      inner join mst_shops ms
+      on ts.shop_id = ms.id
+      inner join mst_products mp
+      on ts.product_id = mp.id
+      where mp.name = '椅子' and ms.name = '店舗A';
+    ")->fetch()['amount'];
+    echo 'chair_amount : ' . $amount . '<br>';
 
-
-  // };
-
-
-  /* 例外処理ここまで */
+  echo '------------------------------------------------------------------------------------- <br>';
 
   /* DBとの接続を破棄 PDOの場合自動的に接続が切断されるが、接続方式によっては必須 */
   $conn = null;
