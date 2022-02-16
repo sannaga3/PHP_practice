@@ -1,0 +1,28 @@
+RewriteEngine On
+
+# localhost:8888/apache1/poll_appと別のエイリアス経由でアクセスした場合
+RewriteCond %{REQUEST_URI} poll_app
+RewriteRule .? /poll/
+
+# /poll/config.php もしくは存在するディレクトリにアクセスした場合
+RewriteCond %{REQUEST_URI} /poll/config.php [OR]
+RewriteCond %{REQUEST_FILENAME} -d [OR]
+# ルートディレクトリへアクセスした場合
+RewriteCond %{REQUEST_URI} /poll/
+# アクセスが各アセットのルートディレクトリでない場合
+RewriteCond %{REQUEST_URI} !^/poll/views
+RewriteCond %{REQUEST_URI} !^/poll/images
+RewriteCond %{REQUEST_URI} !^/poll/css
+RewriteCond %{REQUEST_URI} !^/poll/js
+# ループ回避
+RewriteCond %{REQUEST_URI} !^/poll/views/home.php$
+RewriteRule .? /poll/views/home.php [R,L]
+
+# 存在しないディレクトリもしくはファイルにアクセスした場合
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /poll/view/home.php [R]
+
+AddType image/png .png
+
+#  [R,L] Rはリダイレクト LはLastでマッチしたらこの行でRewriteRuleをストップする   https://memorva.jp/memo/linux/mod_rewrite.php

@@ -5,7 +5,7 @@
 # Redirect /apache1/abcd https://google.com
 # Redirect 302 /apache1/abcd /apache1
 
-RewriteEngine On
+# RewriteEngine On
 # pattern の方のみカレントディレクトリからの相対パスで記述
 # RewriteRule form/index.php /apache1/index.html [R]
 # RewriteRule form/index.php  https://google.com

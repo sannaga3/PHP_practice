@@ -32,6 +32,7 @@ if(isset($_POST['shop_id'])) {
     }
   } catch(PDOException $e) {
     echo 'エラーが発生しました';
+    print_r($e);
   }
 }
 
