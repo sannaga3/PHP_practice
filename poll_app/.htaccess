@@ -1,27 +1,33 @@
 RewriteEngine On
 
 # localhost:8888/apache1/poll_appと別のエイリアス経由でアクセスした場合
-RewriteCond %{REQUEST_URI} poll_app
-RewriteRule .? /poll/
+RewriteCond %{REQUEST_URI} !^/poll
+RewriteRule .? /poll/ [R,L]
 
+# ルーティングを勘違いしていた為24行目までは使わない。正しい方法は27行目に記述。ループなどの勉強になった為メモとして残す
 # /poll/config.php もしくは存在するディレクトリにアクセスした場合
-RewriteCond %{REQUEST_URI} /poll/config.php [OR]
-RewriteCond %{REQUEST_FILENAME} -d [OR]
-# ルートディレクトリへアクセスした場合
-RewriteCond %{REQUEST_URI} /poll/
-# アクセスが各アセットのルートディレクトリでない場合
-RewriteCond %{REQUEST_URI} !^/poll/views
-RewriteCond %{REQUEST_URI} !^/poll/images
-RewriteCond %{REQUEST_URI} !^/poll/css
-RewriteCond %{REQUEST_URI} !^/poll/js
-# ループ回避
-RewriteCond %{REQUEST_URI} !^/poll/views/home.php$
-RewriteRule .? /poll/views/home.php [R,L]
+# RewriteCond %{REQUEST_URI} /poll/config.php [OR]
+# RewriteCond %{REQUEST_FILENAME} -d [OR]
+# RewriteCond %{REQUEST_FILENAME} -f [OR]
+# # ルートディレクトリへアクセスした場合
+# RewriteCond %{REQUEST_URI} /poll/
+# アクセスが各アセットのディレクトリでない場合
+# RewriteCond %{REQUEST_URI} !^/poll/controllers
+# RewriteCond %{REQUEST_URI} !^/poll/css
+# RewriteCond %{REQUEST_URI} !^/poll/db
+# RewriteCond %{REQUEST_URI} !^/poll/images
+# RewriteCond %{REQUEST_URI} !^/poll/js
+# RewriteCond %{REQUEST_URI} !^/poll/partials
+# RewriteCond %{REQUEST_URI} !^/poll/views
+# # # ループ回避
+# RewriteCond %{REQUEST_URI} !^/poll/views/index.php$
+# RewriteRule .? /poll/views/index.php [R,L]
 
 # 存在しないディレクトリもしくはファイルにアクセスした場合
+# home login registerの各ページには /poll/login や /poll/home といった形でアクセスする。その時に302リダイレクトで /poll/index.php が呼ばれることにより、ルーティングが振り分けられる。
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /poll/view/home.php [R]
+RewriteRule .? /poll/index.php
 
 AddType image/png .png
 

@@ -9,21 +9,8 @@
   define('BASE_IMAGE_PATH', BASE_PATH . "images/");
   define('BASE_JS_PATH', BASE_PATH . "js/");
   define('BASE_CSS_PATH', BASE_PATH . "css/");
-
-  /* $_SERVER['REQUEST_URI']によってルーティングの振り分け */
-  switch ($url) {
-    case '/poll/views/login.php':
-      require_once 'views/login.php';
-      break;
-    case '/poll/views/register.php':
-      require_once 'views/register.php';
-      break;
-    case '/poll/views/form.php':
-      require_once 'views/form.php';
-      break;
-    case '/poll/views/home.php':
-      require_once 'views/home.php';
-      break;
-  }
+  define('BASE_PARTIAL_PATH', BASE_PATH . "partial/");
+  define('BASE_VIEW_PATH', BASE_PATH . "views/");
+  define('SOURCE_PATH', __DIR__ . '/php/');
 ?>
 
