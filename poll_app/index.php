@@ -3,13 +3,18 @@
 
   /* リクエストのパラメータの変数化及び初期値設定のライブラリ */
   require_once SOURCE_PATH . 'libs/helper.php';
+
   /* ログイン認証のライブラリ */
   require_once SOURCE_PATH . 'libs/auth.php';
 
   /* モデル内でDataSourceの各関数を用いてDBへアクセスする  */
+  require_once SOURCE_PATH .'models/abstract.model.php';
   require_once SOURCE_PATH .'models/user.model.php';
   require_once SOURCE_PATH .'db/datasource.php';
   require_once SOURCE_PATH .'db/user.query.php';
+
+  /* メッセージ表示 */
+  require_once SOURCE_PATH . 'libs/message.php';
 
   /* controller/login のlogin関数でセッション変数にuserを格納する為 */
   session_start();

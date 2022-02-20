@@ -2,8 +2,9 @@
   namespace controller\login;
 
   use lib\Auth;
+  use lib\Msg;
 
-function get() {
+  function get() {
     require_once SOURCE_PATH . 'views/login.php';
   }
 
@@ -14,11 +15,15 @@ function get() {
     $id = get_param('id', '');
     $pwd = get_param('pwd', '');
 
+    Msg::push(Msg::DEBUG, 'デバッグメッセージ');
     /* Authクラスのloginメソッドにより、idとパスワードのログイン認証を行う */
     if (Auth::login($id, $pwd)) {
-      echo '認証成功';
+      Msg::push(Msg::INFO, '認証成功');
+      redirect(GO_HOME);       // helper.pnpのredirect関数でhomeへリダイレクト。
     } else {
-      echo '認証失敗';
+      // echo '認証失敗';      header("location: {$path}")
+      Msg::push(Msg::ERROR, '認証失敗');
+      redirect(GO_REFERER);  // ログインをやり直し為、再度ログインページを表示
     }
   }
 

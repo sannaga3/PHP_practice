@@ -7,3 +7,16 @@
   <title>アンケート</title>
 </head>
 <body>
+  <?php
+    use lib\Auth;
+    use lib\Msg;
+
+    Msg::flush();
+
+    /* メソッドによるログイン判定 */
+    if (Auth::isLogin()) {
+      echo 'ログイン中です';
+    } else {
+      echo 'ログインしていません';
+    }
+  ?>
