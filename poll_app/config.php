@@ -13,6 +13,6 @@
   define('SOURCE_PATH', __DIR__ . '/php/');
   define('GO_HOME', 'home');
   define('GO_REFERER', 'referer');  // 一つ前のパスへ戻る
-  define('DEBUG', false);
+  define('DEBUG', true);
 ?>
 

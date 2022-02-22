@@ -15,8 +15,10 @@
     $user->nickname = get_param('nickname', '');
 
     if(Auth::regist($user)) {
+      redirect(GO_HOME);
       echo '登録成功';
     } else {
+      redirect(GO_REFERER);
       echo '登録失敗';
     }
   }

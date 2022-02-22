@@ -1,4 +1,9 @@
 <?php
+
+  /* よく使う関数をヘルパーに部品化する */
+
+  use lib\Msg;
+
   function get_param($key, $default_val, $is_post = true) {
     $arry = $is_post ? $_POST : $_GET;
     return $arry[$key] ?? $default_val;
@@ -19,5 +24,9 @@
 
   function get_url($path) {
     return BASE_PATH . trim($path, '/');  // 先頭と末尾の / を取り除くことで、BASE_PATHと被らないようにする
+  }
+
+  function is_alnum($val) {
+    return !preg_match("/^[a-zA-Z0-9]+$/", $val);
   }
 ?>

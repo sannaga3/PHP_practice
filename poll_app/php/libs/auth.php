@@ -2,56 +2,80 @@
   namespace lib;
   use db\UserQuery;
   use model\UserModel;
+  use Throwable;
 
-  class Auth {
+class Auth {
     public static function login($id, $pwd) {
-      $is_success = false;
-
-      /* idを元に対象のUserのインスタンスを取得し、変数に格納する  */
-      $user = UserQuery::fetchById($id);
-      // echo '<pre>';
-      // print_r($result->id);
-      // echo '</pre>';
-
-      /* $userが空でなければパスワードの一致を確かめる */
-      if (!empty($user) && $user->del_flg !== 1) {
-
-        // パスワードがハッシュに一致するかどうかを調べる  password_verify(string $password, string $hash)
-        if (password_verify($pwd, $user->pwd)) {
-          $is_success = true;
-          UserModel::setSession($user);
-          // $_SESSION['user'] = $user;   セッションにUserModelインスタンスを格納する。registメソッドにも同じ記述がある為、上記のように各モデルがAbstractModel::setSessionメソッドを継承する形に統一する。
-        } else {
-          echo 'パスワードが一致しません <br>';
+      try {
+        if (!(UserModel::validateId($id) * UserModel::validatePwd($pwd))) {
+          return false;
         }
-      } else {
-        echo 'ユーザーが見つかりません <br>';
+        $is_success = false;
+
+        /* idを元に対象のUserのインスタンスを取得し、変数に格納する  */
+        $user = UserQuery::fetchById($id);
+        // echo '<pre>';
+        // print_r($result->id);
+        // echo '</pre>';
+
+        /* $userが空でなければパスワードの一致を確かめる */
+        if (!empty($user) && $user->del_flg !== 1) {
+
+          // パスワードがハッシュに一致するかどうかを調べる  password_verify(string $password, string $hash)
+          if (password_verify($pwd, $user->pwd)) {
+            $is_success = true;
+            UserModel::setSession($user);
+            // $_SESSION['user'] = $user;   セッションにUserModelインスタンスを格納する。registメソッドにも同じ記述がある為、上記のように各モデルがAbstractModel::setSessionメソッドを継承する形に統一する。
+          } else {
+            echo 'パスワードが一致しません <br>';
+          }
+        } else {
+          echo 'ユーザーが見つかりません <br>';
+        }
+      } catch(Throwable $e) {
+        $is_success = false;
+        Msg::push(Msg::DEBUG, $e->getMessage());
+        Msg::push(Msg::ERROR, 'エラーが発生しました。時間を置いてから再度お試しください');
       }
       return $is_success;
     }
 
     public static function regist($user) {
-      $is_success = false;
+      try {
+        // if (!$user->isValidId() || !$user->isValidPwd() || !$user->isValidNickname()) {   // OR条件を使うと全てのフォームが空の場合、最初のID検証のエラーしか表示されない問題がある
+        if (!($user->isValidId() * $user->isValidPwd() * $user->isValidNickname())) {   // 各バリデーションの結果を論理値として乗算し、結果を０と１で分岐することにより全てのバリデーションを検証できる
+          return false;   // regist関数がfalseになり、最終的に register.php の if(Auth::regist($user))にfalseが返り、登録が失敗する。
+        }
+        $is_success = false;
 
-      $exist_user = UserQuery::fetchById($user->id);
-      if (!empty($exist_user)) {
-        echo 'ユーザーが既に存在します。';
-        return;
+        $exist_user = UserQuery::fetchById($user->id);
+        if (!empty($exist_user)) {
+          echo 'ユーザーが既に存在します。';
+          return;
+        }
+
+        $is_success = UserQuery::insert($user->id, $user->pwd, $user->nickname);
+
+        if ($is_success) {
+          UserModel::setSession($user);
+          // $_SESSION['user'] = $user;
+        }
+      } catch(Throwable $e) {
+        $is_success = false;
+        Msg::push(Msg::DEBUG, $e->getMessage());
+        Msg::push(Msg::ERROR, 'エラーが発生しました。時間を置いてから再度お試しください');
       }
-
-      $is_success = UserQuery::insert($user->id, $user->pwd, $user->nickname);
-
-      if ($is_success) {
-        UserModel::setSession($user);
-        // $_SESSION['user'] = $user;
-      }
-
       return $is_success;
     }
 
     public static function isLogin() {
-      $user = UserModel::getSession();  //  $_SESSION['_user']を取得し、ログイン中かどうか確認する
-
+      try {
+        $user = UserModel::getSession();  //  $_SESSION['_user']を取得し、ログイン中かどうか確認する
+      } catch (Throwable $e) {
+        UserModel::clearSession();
+        Msg::push(Msg::ERROR, 'エラーが発生しました。再度ログインを行って下さい');
+        return false;
+      }
       if (isset($user)) {
         return true;
       } else {

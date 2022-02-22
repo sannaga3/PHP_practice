@@ -3,6 +3,8 @@
 
   use model\AbstractModel;
 
+  use Throwable;
+
   /* $SESSION_NAME = [[ERROR]['メッセージ内容'], [INFO]['メッセージ内容'], [DEBUG]['メッセージ内容']]といった形で、セッションにメッセージタイプと内容を配列として格納して扱う*/
   class Msg extends AbstractModel{
     protected static $SESSION_NAME = '_msg';
@@ -23,14 +25,19 @@
 
     /* 型毎、メッセージ毎に出力する */
     public static function flush() {
-      $msgs_with_type = static::getSessionAndFlush() ?? [];
-      foreach($msgs_with_type as $type => $msgs) {  // 型を個別に取得する
-        if ($type === static::DEBUG && !DEBUG) {    // 後ろの方の !DEBUG は define('DEBUG', true) のデバッグモードが false の時を表す。DEBUGタイプの値がfalse。
-          continue;                                 // デバッグモードでない時は以降の処理へ継続
+      try {
+        $msgs_with_type = static::getSessionAndFlush() ?? [];
+        foreach($msgs_with_type as $type => $msgs) {  // 型を個別に取得する
+          if ($type === static::DEBUG && !DEBUG) {    // 後ろの方の !DEBUG は define('DEBUG', true) のデバッグモードが false の時を表す。DEBUGタイプの値がfalse。
+            continue;                                 // デバッグモードでない時は以降の処理へ継続
+          }
+          foreach($msgs as $msg) {  // メッセージ内容を個別に取得する
+            echo "<div>{$type} : {$msg}</div>";
+          }
         }
-        foreach($msgs as $msg) {  // メッセージ内容を個別に取得する
-          echo "<div>{$type} : {$msg}</div>";
-        }
+      } catch(Throwable $e) {
+        Msg::push(Msg::DEBUG, $e->getMessage());
+        Msg::push(Msg::ERROR, "Msg::flushで例外が発生しました");
       }
     }
 
