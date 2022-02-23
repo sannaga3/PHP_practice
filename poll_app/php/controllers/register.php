@@ -3,6 +3,7 @@
 
   use lib\Auth;
   use model\UserModel;
+  use lib\Msg;
 
   function get() {
     require_once SOURCE_PATH . 'views/register.php';
@@ -16,10 +17,10 @@
 
     if(Auth::regist($user)) {
       redirect(GO_HOME);
+      Msg::push(Msg::INFO,"{$user->nicknameさん、ようこそ}");
       echo '登録成功';
     } else {
       redirect(GO_REFERER);
-      echo '登録失敗';
     }
   }
 ?>

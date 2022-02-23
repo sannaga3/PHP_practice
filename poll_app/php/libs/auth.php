@@ -27,10 +27,10 @@ class Auth {
             UserModel::setSession($user);
             // $_SESSION['user'] = $user;   セッションにUserModelインスタンスを格納する。registメソッドにも同じ記述がある為、上記のように各モデルがAbstractModel::setSessionメソッドを継承する形に統一する。
           } else {
-            echo 'パスワードが一致しません <br>';
+            Msg::push(Msg::ERROR, 'パスワードが一致しません <br>');
           }
         } else {
-          echo 'ユーザーが見つかりません <br>';
+          Msg::push(Msg::ERROR, 'ユーザーが見つかりません <br>');
         }
       } catch(Throwable $e) {
         $is_success = false;
@@ -50,7 +50,7 @@ class Auth {
 
         $exist_user = UserQuery::fetchById($user->id);
         if (!empty($exist_user)) {
-          echo 'ユーザーが既に存在します。';
+          Msg::push(Msg::ERROR, 'ユーザーが既に存在します。');
           return;
         }
 
@@ -72,8 +72,8 @@ class Auth {
       try {
         $user = UserModel::getSession();  //  $_SESSION['_user']を取得し、ログイン中かどうか確認する
       } catch (Throwable $e) {
-        UserModel::clearSession();
-        Msg::push(Msg::ERROR, 'エラーが発生しました。再度ログインを行って下さい');
+        Msg::push(Msg::ERROR, 'エラーが発生しました。');
+        Msg::push(Msg::ERROR, $e->getMessage());
         return false;
       }
       if (isset($user)) {
@@ -81,6 +81,16 @@ class Auth {
       } else {
         return false;
       }
+    }
+
+    public static function logout() {
+      try {
+        UserModel::clearSession();
+      } catch(Throwable $e) {
+        Msg::push(Msg::ERROR, $e->getMessage());
+        return false;
+      }
+      return true;
     }
   }
   /* 以下セッションに関するメモ */
