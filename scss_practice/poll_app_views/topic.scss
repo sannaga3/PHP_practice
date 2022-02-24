@@ -1,0 +1,70 @@
+$body-bg: #eff6ff;
+$body-color: #6b7280;
+$font-size-base: 0.9rem;
+$input-btn-padding-x: 1.3rem;
+$light-primary: rgb(71, 178, 240);
+$dark-primary: rgb(4, 140, 219);
+$like-green: #33d499;
+$dislike-red: #f87171;
+$danger-red: rgb(243, 78, 78);
+$font-family-base: 'Source Code Pro', monospace;
+
+body {
+  color: $body-color;
+  background-color: $body-bg;
+}
+
+.font-source-code-pro{
+  font-family: $font-family-base;
+}
+
+.login-form {
+  width: 300px;
+}
+
+.topic-form {
+  width: 100%;
+}
+
+.login-form, .topic-form {
+  margin: 0 auto;
+
+  input {
+    font-size: $font-size-base;
+    padding: 10px $input-btn-padding-x;
+  }
+
+  .btn-primary {
+    background-color: $light-primary;
+    border: $light-primary;
+
+    &:hover {
+      background-color: $dark-primary;
+      border: $dark-primary;
+    }
+  }
+}
+
+.topic {
+  transition: box-shadow .1s;
+
+  &:hover {
+    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, 0.3) !important
+  }
+}
+
+.min-w-100 {
+  min-width: 100px;
+}
+
+.like-green {
+  color: $like-green;
+}
+
+.dislike-red {
+  color: $dislike-red;
+}
+
+.danger-red {
+  background-color: $danger-red;
+}

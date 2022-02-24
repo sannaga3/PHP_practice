@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>みんなのアンケート</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="//fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="topic.css">
+</head>
+<body>
+  <div id="container">
+    <header class="container my-2">
+      <nav class="row align-items-center py-2">
+        <a href="" class="col-md d-flex align-items-center mb-3 mb-md-0">
+          <img src="../images/A.png" alt="みんなのアンケート サイトロゴ" width="50px" class="mr-2">
+          <span class="h2 font-weight-bold font-source-code-pro mb-0">みんなのアンケート</span>
+        </a>
+        <div class="col-md-auto">
+          <a href="" class="btn btn-primary shadow-sm">サインアップ</a>
+          <a href="" class="btn btn-outline-info shadow-sm">ログイン</a>
+        </div>
+      </nav>
+    </header>
+    <main class="container py-3">
+      <div class="row">
+        <div class="col">
+          <canvas id="chart" width="400" height="400" data-likes="3" data-dislikes="2" style="background-color: gray;"></canvas>
+        </div>
+        <div class="col-auto my-3">
+          <div>
+            <h1>明日雪降るってほんとですか？</h1>
+            <span class="mr-1 h5 font-weight-normal">Commented by テストユーザー</span>
+            <span class="mr-1 h5 font-weight-normal">&bull;</span>
+            <span class="h5 font-weight-normal">36 views</span>
+          </div>
+          <div class="row justify-content-around text-center mt-3">
+            <div class="col-auto  like-green">
+              <div class="display-1">1</div>
+              <div class="h5">賛成</div>
+            </div>
+            <div class="col-auto dislike-red">
+              <div class="display-1">2</div>
+              <div class="h5">反対</div>
+            </div>
+          </div>
+          <div class="container text-left mt-3 px-0">
+            <form action="">
+              <span class="h4">あなたは賛成？反対？</span>
+              <input type="hidden" name="topic_id" value="3">
+              <div class="form-group">
+                <textarea class="w-100 border-light" name="body" id="body" rows="5"></textarea>
+              </div>
+              <div class="container">
+                <div class="form-group row h5">
+                  <div class="col-auto pl-0 d-flex align-items-center">
+                    <div class="form-check-inline">
+                      <input type="radio" id="agree" name="agree" value="1" checked>
+                      <label for="agree" class="form-check-label">賛成</label>
+                    </div>
+                    <div class="form-check-inline">
+                      <input type="radio" id="agree" name="agree" value="2">
+                      <label for="agree" class="form-check-label">反対</label>
+                    </div>
+                  </div>
+                  <input type="submit" value="送信" class="col btn btn-success shadow-sm">
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="py-5">
+        <ul class="list-unstyled my-5">
+          <li class="bg-white shadow-sm mb-3 rounded p-3">
+            <div class="d-flex flex-column">
+              <h2 class="h4">
+                <span class="badge badge-success align-bottom">賛成</span>
+                <a href="" class="text-secondary">犬も歩けば棒に当たりますか</a>
+              </h2>
+              <span>Commented by テストユーザー</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </main>
+    <footer class="text-center p-3">
+      &copy; aaaaa
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,64 @@
+body {
+  color: #6b7280;
+  background-color: #eff6ff;
+}
+
+.font-source-code-pro {
+  font-family: "Source Code Pro", monospace;
+}
+
+.login-form {
+  width: 300px;
+}
+
+.topic-form {
+  width: 100%;
+}
+
+.login-form, .topic-form {
+  margin: 0 auto;
+}
+
+.login-form input, .topic-form input {
+  font-size: 0.9rem;
+  padding: 10px 1.3rem;
+}
+
+.login-form .btn-primary, .topic-form .btn-primary {
+  background-color: #47b2f0;
+  border: #47b2f0;
+}
+
+.login-form .btn-primary:hover, .topic-form .btn-primary:hover {
+  background-color: #048cdb;
+  border: #048cdb;
+}
+
+.topic {
+  -webkit-transition: -webkit-box-shadow .1s;
+  transition: -webkit-box-shadow .1s;
+  transition: box-shadow .1s;
+  transition: box-shadow .1s, -webkit-box-shadow .1s;
+}
+
+.topic:hover {
+  -webkit-box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3) !important;
+          box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3) !important;
+}
+
+.min-w-100 {
+  min-width: 100px;
+}
+
+.like-green {
+  color: #33d499;
+}
+
+.dislike-red {
+  color: #f87171;
+}
+
+.danger-red {
+  background-color: #f34e4e;
+}
+/*# sourceMappingURL=topic.css.map */
