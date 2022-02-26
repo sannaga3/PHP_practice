@@ -3,10 +3,11 @@
 
   use lib\Auth;
   use lib\Msg;
-use model\UserModel;
+  use model\UserModel;
 
-function get() {
-    require_once SOURCE_PATH . 'views/login.php';
+  function get() {
+    // require_once SOURCE_PATH . 'views/login.php';  => index.phpへ移動  index関数で取得するように変更
+    \view\login\index();
   }
 
   function post(){

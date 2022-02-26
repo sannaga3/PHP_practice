@@ -27,14 +27,20 @@
     public static function flush() {
       try {
         $msgs_with_type = static::getSessionAndFlush() ?? [];
+        echo "<div id='message'>";
         foreach($msgs_with_type as $type => $msgs) {  // 型を個別に取得する
           if ($type === static::DEBUG && !DEBUG) {    // 後ろの方の !DEBUG は define('DEBUG', true) のデバッグモードが false の時を表す。DEBUGタイプの値がfalse。
             continue;                                 // デバッグモードでない時は以降の処理へ継続
           }
+
+          $color = $type === static::INFO ? 'alert-info' : 'alert-danger';  // メッセージタイプにより$colorへ格納するクラスの名前を変更する。クラス名にはbootstrapを用いる。
+
           foreach($msgs as $msg) {  // メッセージ内容を個別に取得する
-            echo "<div>{$type} : {$msg}</div>";
+            echo "<div class='alert $color'>{$msg}</div>";                  // $colorによりalertの色分けをする
           }
         }
+        echo "</div>";
+
       } catch(Throwable $e) {
         Msg::push(Msg::DEBUG, $e->getMessage());
         Msg::push(Msg::ERROR, "Msg::flushで例外が発生しました");

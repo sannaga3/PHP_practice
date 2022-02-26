@@ -29,7 +29,7 @@ body {
 .login-form, .topic-form {
   margin: 0 auto;
 
-  input {
+  input, .btn {
     font-size: $font-size-base;
     padding: 10px $input-btn-padding-x;
   }

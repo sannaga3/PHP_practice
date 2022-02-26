@@ -6,8 +6,9 @@
   use lib\Msg;
 
   function get() {
-    require_once SOURCE_PATH . 'views/register.php';
+    \view\register\register();
   }
+
   function post(){
     /* 登録したユーザのインスタンス生成 */
     $user = new UserModel;

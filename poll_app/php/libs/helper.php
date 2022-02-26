@@ -4,7 +4,9 @@
 
   use lib\Msg;
 
-  function get_param($key, $default_val, $is_post = true) {
+use function controller\home\get;
+
+function get_param($key, $default_val, $is_post = true) {
     $arry = $is_post ? $_POST : $_GET;
     return $arry[$key] ?? $default_val;
   }
@@ -24,6 +26,10 @@
 
   function get_url($path) {
     return BASE_PATH . trim($path, '/');  // 先頭と末尾の / を取り除くことで、BASE_PATHと被らないようにする
+  }
+
+  function show_url($path) {
+    echo get_url($path);
   }
 
   function is_alnum($val) {

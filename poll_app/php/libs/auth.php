@@ -83,6 +83,14 @@ class Auth {
       }
     }
 
+    /* ログインしていない場合はログイン画面へリダイレクトする */
+    public static function requireLogin() {
+      if(!static::isLogin()) {
+        Msg::push(Msg::ERROR, 'ログインしてください');
+        redirect('login');
+      }
+    }
+
     public static function logout() {
       try {
         UserModel::clearSession();

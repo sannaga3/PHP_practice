@@ -19,7 +19,7 @@ body {
   margin: 0 auto;
 }
 
-.login-form input, .topic-form input {
+.login-form input, .login-form .btn, .topic-form input, .topic-form .btn {
   font-size: 0.9rem;
   padding: 10px 1.3rem;
 }
