@@ -29,7 +29,7 @@
     } catch(Throwable $e) {
       Msg::push(Msg::DEBUG, $e->getMessage());
       Msg::push(Msg::ERROR, 'エラーです');
-      require_once SOURCE_PATH . 'views/404.php';
+      redirect('404');
     }
   }
 ?>

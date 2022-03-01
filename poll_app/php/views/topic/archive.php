@@ -9,7 +9,7 @@
     <?php
       foreach($topics as $topic) {
         $url = get_url('topic/edit?topic_id=' . $topic->id);  // 個別のレコードの編集ページへ遷移するurl
-        \partials\topic_list_item($topic, $url);
+        \partials\topic_list_item($topic, $url, true);
       }
     ?>
 </ul>

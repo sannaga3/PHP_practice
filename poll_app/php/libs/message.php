@@ -55,14 +55,5 @@
         static::DEBUG => []
       ]);
     }
-
-    /* セッションのメッセージ表示後に値を初期化する */
-    public static function getSessionAndFlush(){
-      try {
-        return static::getSession();
-      } finally {
-        static::clearSession();
-      }
-    }
   }
 ?>

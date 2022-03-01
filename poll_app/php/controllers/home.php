@@ -1,7 +1,10 @@
 <?php
   namespace controller\home;
 
-  function get() {
-    \view\home\home();
+use db\TopicQuery;
+
+function get() {
+    $topics = TopicQuery::fetchPublishedTopics();
+    \view\home\index($topics);
   }
 ?>

@@ -1,4 +1,5 @@
 <?php
+
   require_once 'config.php';
 
   /* リクエストのパラメータの変数化及び初期値設定のライブラリ */
@@ -10,23 +11,28 @@
   use function lib\route;
 
   /* モデル内でDataSourceの各関数を用いてDBへアクセスする  */
+  require_once SOURCE_PATH .'db/datasource.php';
   require_once SOURCE_PATH .'models/abstract.model.php';
   require_once SOURCE_PATH .'models/user.model.php';
   require_once SOURCE_PATH .'models/topic.model.php';
-  require_once SOURCE_PATH .'db/datasource.php';
+  require_once SOURCE_PATH .'models/comment.model.php';
   require_once SOURCE_PATH .'db/user.query.php';
   require_once SOURCE_PATH .'db/topic.query.php';
+  require_once SOURCE_PATH .'db/comment.query.php';
 
   /* メッセージ表示 */
   require_once SOURCE_PATH . 'libs/message.php';
 
   /* 各viewを関数で呼べるようにrequire_onceしておく */
   require_once SOURCE_PATH . 'partials/topic-list-item.php';
+  require_once SOURCE_PATH . 'partials/topic-header-item.php';
   require_once SOURCE_PATH . 'partials/header.php';
   require_once SOURCE_PATH . 'views/home.php';
   require_once SOURCE_PATH . 'views/login.php';
   require_once SOURCE_PATH . 'views/register.php';
   require_once SOURCE_PATH . 'views/topic/archive.php';
+  require_once SOURCE_PATH . 'views/topic/detail.php';
+  require_once SOURCE_PATH . 'views/topic/edit.php';
   require_once SOURCE_PATH . 'partials/footer.php';
 
   /* controller/login のlogin関数でセッション変数にuserを格納する為 */
@@ -36,8 +42,10 @@
     /* ヘッダーの読み込み */
     \partials\header();
 
+    $url = parse_url(CURRENT_URI);
     /* $_SERVER['REQUEST_URI'] から 個別のページを識別する /poll/login => login */
-    $rpath = str_replace(BASE_PATH, "", $_SERVER['REQUEST_URI']);       /* str_replace(置換する値, 置換後の値, 置換される値)       https://www.php.net/manual/ja/function.str-replace.php */
+    $rpath = str_replace(BASE_PATH, "", $url['path']);       /* str_replace(置換する値, 置換後の値, 置換される値)       https://www.php.net/manual/ja/function.str-replace.php */
+
     /* 後に関数の一部としてアクション名を使う為、小文字にしておく */
     $method = strtolower($_SERVER['REQUEST_METHOD']);
 
@@ -70,4 +78,5 @@
   echo 'sessionName : ' . session_name() . '<br>';
   echo 'sessionID : ' . session_id() . '<br>';
   echo '</pre>';
+
 ?>

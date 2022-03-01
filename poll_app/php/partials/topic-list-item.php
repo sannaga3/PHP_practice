@@ -1,15 +1,17 @@
 <?php
   namespace partials;
 
-  function topic_list_item($topic, $title_url) {
-    /* topicのpublishedカラム(boolean)で表示するか否かを分岐 */
+  function topic_list_item($topic, $title_url, $with_status) {
+    /* $with_statusでラベルの表示の有無を指定、topicのpublishedカラム(boolean)でラベルの色を分岐 */
     $published = $topic->published ? '公開' : '非公開';
     $label_class = $topic->published ? 'badge-primary' : 'badge-danger';
 ?>
   <li class="topic row bg-white shadow-sm mb-3 rounded p-3">
     <div class="col-md d-flex align-items-center">
       <h2 class="mb-2 mb-md-0">
-        <span class="badge <?php echo $label_class; ?> align-bottom"><?php echo $published ?></span>
+        <?php if ($with_status) : ?>
+          <span class="badge <?php echo $label_class; ?> align-bottom"><?php echo $published ?></span>
+        <?php endif;?>
         <a href="<?php echo $title_url; ?>" class="text-secondary"><?php echo $topic->title; ?></a>
       </h2>
     </div>

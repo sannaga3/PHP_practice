@@ -61,3 +61,7 @@ body {
 .danger-red {
   background-color: #f34e4e;
 }
+
+.col {
+  padding: 0;
+}
