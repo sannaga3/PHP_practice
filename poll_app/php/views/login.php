@@ -11,7 +11,7 @@
   </div>
   <div class="login-form bg-white p-4 shadow-sm rounded">
     <!-- 自身のURLに対してPOSTメソッドをリクエストする -->
-    <form action="<?php echo CURRENT_URI; ?>" method="POST" class="validate-form" novalidate autocomplete="off>
+    <form action="<?php echo CURRENT_URI; ?>" method="POST" class="validate-form" novalidate autocomplete="off">
       <div class="form-group">
         <label for="id">ユーザーID</label>
         <input id="id" type="text" name="id" class="form-control validate-target" required maxlength="10" pattern="[a-zA-z0-9]+" autofocus tabindex="1">

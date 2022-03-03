@@ -73,10 +73,10 @@
   \partials\footer();
 
   // セッション確認のメモ
-  echo '<pre>';
-  print_r($_SESSION['_user']);
-  echo 'sessionName : ' . session_name() . '<br>';
-  echo 'sessionID : ' . session_id() . '<br>';
-  echo '</pre>';
+  // echo '<pre>';
+  // print_r($_SESSION['_user']);
+  // echo 'sessionName : ' . session_name() . '<br>';
+  // echo 'sessionID : ' . session_id() . '<br>';
+  // echo '</pre>';
 
 ?>
