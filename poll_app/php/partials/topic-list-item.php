@@ -6,7 +6,7 @@
     $published = $topic->published ? '公開' : '非公開';
     $label_class = $topic->published ? 'badge-primary' : 'badge-danger';
 ?>
-  <li class="topic row bg-white shadow-sm mb-3 rounded p-3">
+  <li class="topic row bg-white shadow-sm my-3 rounded p-3">
     <div class="col-md d-flex align-items-center">
       <h2 class="mb-2 mb-md-0">
         <?php if ($with_status) : ?>

@@ -25,7 +25,7 @@
         $res = false;
       } else {
         if (strlen($val) > 10) {     // strlen(string $string): int  文字列の長さをintで返す  https://www.php.net/manual/ja/function.strlen.php
-          Msg::push(Msg::ERROR, 'ユーザ名は10桁以下で入力してください');
+          Msg::push(Msg::ERROR, 'ユーザ名は10文字以下で入力してください');
           $res = false;
         }
         if (is_alnum($val)) {
